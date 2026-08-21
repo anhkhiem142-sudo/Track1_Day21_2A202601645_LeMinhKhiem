@@ -26,10 +26,16 @@ Quy trình bắt buộc cho mỗi lượt trả lời:
 
 1. Luôn gọi kb_search TRƯỚC KHI trả lời (trừ khi câu hỏi rõ ràng ngoài phạm vi corpus). Có thể gọi nhiều lần với các truy vấn khác nhau nếu kết quả đầu chưa đủ.
 2. Chỉ trả lời dựa trên nội dung kb_search trả về trong lượt hiện tại. Nếu corpus không có thông tin để trả lời, xem đó là câu hỏi out_of_scope.
+   - Không tự thêm số liệu, phần trăm, tên riêng hoặc ví dụ "minh hoạ" nếu chi tiết đó
+     không xuất hiện trong đoạn nguồn đã truy được.
+   - Nếu học viên đang xem một slide cụ thể, ưu tiên nội dung của đúng slide đó.
+   - Nếu học viên xin viết hộ/làm hộ bài tập, báo cáo hoặc xin bịa số liệu, phải từ
+     chối thực hiện; chỉ hướng dẫn quy trình để học viên tự làm từ dữ liệu của họ.
 3. Trích nguồn nghiêm ngặt:
 - Mỗi nguồn trong "sources" phải gồm "doc_id" (một trong 4 doc_id ở trên), "section_id" (slug mục hoặc mã slide), và "quote" là một đoạn trích NGUYÊN VĂN ngắn (tối đa ~40 từ) từ kết quả kb_search.
 - Không suy diễn section_id nếu không chắc — chỉ dùng section rõ ràng chứa đoạn quote.
 - Không liệt kê nguồn mà bạn không thực sự dùng trong câu trả lời.
+- "quote" phải được sao chép nguyên văn từ kết quả kb_search, không viết lại theo trí nhớ.
 4. Phong cách trợ giảng:
 - Trả lời bằng tiếng Việt, rõ ràng, súc tích, đúng vai trò giảng dạy cho học viên PM/PO.
 - Giải thích vừa đủ để học viên hiểu bản chất, có thể kèm ví dụ nhỏ lấy từ corpus.
@@ -264,10 +270,21 @@ KB_SEARCH_TOOL = {
     },
 }
 
-def kb_search_local(query, max_results=5, sections=None):
+def kb_search_local(query, max_results=5, sections=None, preferred_section_id=None):
     """Thực thi kb_search local: BM25 trên corpus, trả về cùng shape với platform."""
     max_results = max(1, min(int(max_results or 5), 8))
-    hits = retrieve_corpus(query, top_k=max_results, sections=sections)
+    corpus_sections = sections if sections is not None else load_corpus()
+    hits = retrieve_corpus(query, top_k=max_results, sections=corpus_sections)
+    # Slide context là tín hiệu tường minh. Ghim đúng section lên đầu để câu hỏi
+    # deixis/truy vấn ngắn không làm BM25 đẩy slide đang xem khỏi top-k.
+    if preferred_section_id:
+        preferred = next((s for s in corpus_sections
+                          if s["section_id"] == preferred_section_id), None)
+        if preferred:
+            hits = [preferred] + [s for s in hits
+                                  if not (s["doc_id"] == preferred["doc_id"] and
+                                          s["section_id"] == preferred["section_id"])]
+            hits = hits[:max_results]
     return {
         "tool": "kb_search",
         "query": query,
@@ -323,7 +340,8 @@ def call_tutor(question, slide=None, max_steps=6):
             if fn.get("name") == "kb_search":
                 result = kb_search_local(args.get("query", ""),
                                          args.get("max_results", 5),
-                                         sections=corpus_sections)
+                                         sections=corpus_sections,
+                                         preferred_section_id=(slide or {}).get("id"))
                 tool_log.append({"query": result["query"],
                                  "hits": [f'{r["doc_id"]}#{r["section_id"]}'
                                           for r in result["results"]]})

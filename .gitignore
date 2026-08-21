@@ -1,4 +1,5 @@
 .env
+.venv/
 __pycache__/
 *.pyc
 # artifacts chạy sinh ra — sinh viên tự tạo khi chạy (ở root repo)
@@ -7,4 +8,6 @@ results.jsonl
 verdicts.jsonl
 labels.csv
 labels-*.csv
+!deliverables/evidence/labels.csv
+!deliverables/evidence/labels-*.csv
 report.html

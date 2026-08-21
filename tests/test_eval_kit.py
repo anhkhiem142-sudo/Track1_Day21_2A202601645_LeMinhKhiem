@@ -52,6 +52,11 @@ check("kb_search shape", r["tool"] == "kb_search" and isinstance(r["results"], l
       and r["source_count"] == len(r["results"]))
 check("kb_search tôn trọng max_results", r["source_count"] <= 3)
 check("kb_search kết quả đủ field", all(set(x) == {"doc_id", "section_id", "text"} for x in r["results"]))
+r_slide = tutor.kb_search_local("calibration", max_results=3,
+                                preferred_section_id="s56")
+check("kb_search ưu tiên đúng slide context",
+      r_slide["results"][0]["section_id"] == "s56",
+      str([(x["doc_id"], x["section_id"]) for x in r_slide["results"]]))
 
 print("== Tầng 4: parse JSON output ==")
 check("parse JSON sạch", tutor.parse_json_content('{"a": 1}') == {"a": 1})

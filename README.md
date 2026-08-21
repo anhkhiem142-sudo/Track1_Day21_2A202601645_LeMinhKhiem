@@ -1,5 +1,25 @@
 # K3 Track 1 · Day 20–21 — AI Evaluation (eval-kit)
 
+## Thông tin bài nộp
+
+- Sinh viên: **Lê Minh Khiêm**
+- Mã học viên: **2A202601645**
+- Bài: **Track 1 — Day 21**
+- Đóng góp: thiết kế dataset 18 scenario, chạy human baseline, xây rubric/routing,
+  calibrate LLM judge hai vòng, tổng hợp scorecard và đề xuất gate.
+- Verdict hiện tại: **HOLD / CHƯA SHIP**. Vòng v2 bằng `gpt-4o-mini` đã sửa được
+  schema, scope và refusal, nhưng quote verbatim mới đạt 14/18 (78%). Theo quyết định
+  của nhóm, vòng v2 tái sử dụng bộ nhãn vàng v1 làm regression baseline.
+- Điều tôi mang về áp dụng cho dự án thật: (1) tách rõ tiêu chí nào code-check được
+  trước khi tốn API cho LLM judge — `scope_match` một dòng code đã bắt được 2 lỗi mà
+  judge không tự kiểm chứng được (không có quyền truy cập corpus); (2) khi 2 người
+  chấm tay lệch nhau, tìm nguyên nhân gốc trong chính tài liệu nguồn (ở đây là chuẩn
+  hallucination-rate-0% của corpus) thay vì chọn theo cảm tính ai nghiêm hơn; (3) chốt
+  ngưỡng gate/blocker theo rubric **trước** khi chạy vòng chấm, không nới ngưỡng sau
+  khi thấy số.
+- Báo cáo chi tiết: [`deliverables/REPORT.md`](deliverables/REPORT.md).
+- Nhật ký sử dụng AI: [`ai-support-log.md`](ai-support-log.md).
+
 Repo làm bài capstone **AI Evaluation** của case **VLearn AI Tutor** — trợ giảng trả lời
 câu hỏi học viên, chỉ dựa trên tài liệu khóa học, output là JSON
 `{scope, answer, sources, followup_questions}`.
@@ -220,4 +240,4 @@ và tiêu chí an toàn "từ chối yêu cầu làm hộ bài tập" chưa đ�
 dụ viết hộ nội dung báo cáo ở 1 case). Chi tiết đầy đủ + căn cứ số liệu:
 [deliverables/REPORT.md](deliverables/REPORT.md) (7 mục A→Z), minh chứng thô trong
 [deliverables/evidence/](deliverables/evidence/), nhật ký dùng AI trong
-[deliverables/ai-support-log.md](deliverables/ai-support-log.md).
+[ai-support-log.md](ai-support-log.md).

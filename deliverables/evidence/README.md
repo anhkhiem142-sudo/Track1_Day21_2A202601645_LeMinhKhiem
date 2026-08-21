@@ -20,3 +20,18 @@ Số liệu trong mục 5 (Calibration Report) của `deliverables/REPORT.md` ph
 file ở đây (confusion matrix, % agreement in ra từ `eval/judge.py`).
 
 Nhớ: chạy xong một vòng là copy ngay — cuối buổi mới gom là mất dấu các vòng trước.
+
+## Trạng thái provenance hiện tại
+
+- `labels.csv`, `labels-khiem.csv`, `labels-tuyet.csv` là nhãn người thật của vòng
+  chấm độc lập (Tuyết + Khiêm, không bàn trước) trên `report.html`, đã được cả hai
+  xác nhận — không phải dữ liệu tái dựng.
+- Vòng v1 giữ raw evidence (`results-v1.jsonl`, `verdicts-v1/v2.jsonl`); HTML cũ
+  không giữ lại vì có thể tái sinh và đã được thay bằng `report-v2.html` hiện hành.
+- `braintrust-link.md` trỏ tới project LangSmith đã kiểm tra kết nối.
+
+Vòng chạy mới bằng `openai/gpt-4o-mini` đã hoàn thành và được lưu thành:
+`results-v2.jsonl`, `verdicts-v3.jsonl`, `judge-prompt-v3.md`, `report-v2.html`.
+Project LangSmith đã nhận đủ 18 trace tutor và 18 trace judge của vòng này. Nhãn người
+được chốt từ vòng v1 và được nhóm quyết định tái sử dụng làm regression baseline cho
+vòng v2; không tạo `labels-v2.csv`.
