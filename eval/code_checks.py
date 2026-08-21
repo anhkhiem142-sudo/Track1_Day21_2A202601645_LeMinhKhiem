@@ -65,10 +65,27 @@ def check_quote_verbatim(rec, section_tokens):
     return True, None
 
 
+def check_scope_match(rec, expected_by_id):
+    """scope tutor trả phải khớp expected_scope trong dataset — chỉ so khi expected_scope
+    rõ ràng (in_scope/out_of_scope). Câu "unclear" cần đọc ngữ cảnh nên bỏ qua, để
+    LLM judge/con người chấm (xem Routing Map mục 4)."""
+    out = rec.get("output") or {}
+    if out.get("_parse_error"):
+        return None, "bỏ qua (JSON vỡ)"
+    expected = expected_by_id.get(rec.get("scenario_id"))
+    if not expected or expected == "unclear":
+        return None, "bỏ qua (expected_scope mơ hồ/không khai báo)"
+    got = out.get("scope")
+    if got != expected:
+        return False, f"expected {expected}, tutor trả {got}"
+    return True, None
+
+
 CHECKS = [  # thêm check của nhóm vào đây
     ("schema_valid", check_schema),
     ("citation_exists", check_citation_exists),
     ("quote_verbatim", check_quote_verbatim),
+    ("scope_match", check_scope_match),
 ]
 
 
@@ -80,6 +97,13 @@ def main(path="results.jsonl"):
     sections = tutor.load_corpus()
     valid_ids = {(s["doc_id"], s["section_id"]) for s in sections}
     section_tokens = {(s["doc_id"], s["section_id"]): tutor.tokens(s["text"]) for s in sections}
+    expected_by_id = {}
+    if os.path.exists("dataset.jsonl"):
+        for line in open("dataset.jsonl", encoding="utf-8"):
+            if line.strip():
+                d = json.loads(line)
+                sid = d.get("scenario_id") or d.get("id")
+                expected_by_id[sid] = d.get("expected_scope")
 
     totals = {name: [0, 0] for name, _ in CHECKS}  # [pass, fail] (skip không đếm)
     for rec in rows:
@@ -90,6 +114,8 @@ def main(path="results.jsonl"):
                 ok, reason = fn(rec)
             elif fn is check_citation_exists:
                 ok, reason = fn(rec, valid_ids)
+            elif fn is check_scope_match:
+                ok, reason = fn(rec, expected_by_id)
             else:
                 ok, reason = fn(rec, section_tokens)
             if ok is None:

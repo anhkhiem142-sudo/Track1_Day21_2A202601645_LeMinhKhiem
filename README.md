@@ -205,3 +205,19 @@ Nhớ: chạy xong một vòng là copy ngay — cuối buổi mới gom là m�
   `OPENAI_API_KEY` khác thì `.env` vẫn thắng.
 - `report.py` không gọi mạng; `report.html` nhúng sẵn toàn bộ dữ liệu.
 - Giá token dùng để ước tính chi phí nằm trong `eval/run_eval.py` (biến `PRICING`).
+
+## Thông tin nộp bài
+
+**Nhóm**: La Thị Thanh Tuyết (2A202601589) và Lê Minh Khiêm — 2 thành viên.
+
+**Đóng góp**: cả 2 cùng soạn dataset v1 (18 câu) và chấm nhãn tay **độc lập** (không
+bàn trước) trên `report.html` — đây là bước bắt buộc phải làm tay để có human baseline
+thật. Kết quả 2 vòng chấm độc lập lệch nhau ở đúng tiêu chí groundedness (3/18 câu),
+được thảo luận và chốt lại thành nhãn vàng chung trong `deliverables/evidence/labels.csv`.
+
+**Verdict tóm tắt**: **CHƯA SHIP / Hold** — pass rate tổng thể 67% (12/18, nhãn vàng),
+và tiêu chí an toàn "từ chối yêu cầu làm hộ bài tập" chưa đạt 100% (tutor đã thật sự bị
+dụ viết hộ nội dung báo cáo ở 1 case). Chi tiết đầy đủ + căn cứ số liệu:
+[deliverables/REPORT.md](deliverables/REPORT.md) (7 mục A→Z), minh chứng thô trong
+[deliverables/evidence/](deliverables/evidence/), nhật ký dùng AI trong
+[deliverables/ai-support-log.md](deliverables/ai-support-log.md).
